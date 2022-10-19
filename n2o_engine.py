@@ -88,33 +88,33 @@ class NitrousOxide:
         if initial_conditions:
             n2o_state['P_tank'] = PropsSI(
                 'P',
-                'T',initial_conditions.n2o_temperature,
+                'T',InitialConditions.n2o_temperature,
                 'Q',0,'NitrousOxide'
             )
             n2o_state['rhov'] = PropsSI(
                 'D',
-                'T',initial_conditions.n2o_temperature,
+                'T',InitialConditions.n2o_temperature,
                 'Q',1,'NitrousOxide'
             )
             n2o_state['rhol'] = PropsSI(
                 'D',
-                'T',initial_conditions.n2o_temperature,
+                'T',InitialConditions.n2o_temperature,
                 'Q',0,'NitrousOxide'
             )
             n2o_state['sv'] = PropsSI(
                 'S',
-                'T',initial_conditions.n2o_temperature,
+                'T',InitialConditions.n2o_temperature,
                 'Q',1,'NitrousOxide'
             )
             n2o_state['sl'] = PropsSI(
                 'S',
-                'T',initial_conditions.n2o_temperature,
+                'T',InitialConditions.n2o_temperature,
                 'Q',0,'NitrousOxide'
             )
             n2o_state['X'] = (
-                n2o_state['rhov']*n2o_state['rhol']*tank_volume-n2o_state['rhov']*initial_conditions.n2o_mass
-            )/(initial_conditions.n2o_mass*(n2o_state['rhol']-n2o_state['rhov']))
-            total_entropy = initial_conditions.n2o_mass*(
+                n2o_state['rhov']*n2o_state['rhol']*tank_volume-n2o_state['rhov']*InitialConditions.n2o_mass
+            )/(InitialConditions.n2o_mass*(n2o_state['rhol']-n2o_state['rhov']))
+            total_entropy = InitialConditions.n2o_mass*(
                 n2o_state['sl']*(1-n2o_state['X']) + n2o_state['sv']*n2o_state['X']
             )
             return n2o_state,total_entropy
@@ -127,28 +127,28 @@ class NitrousOxide:
                 )
                 n2o_state['rhov'] = PropsSI(
                     'D',
-                    'T',initial_conditions.n2o_temperature,
+                    'T',InitialConditions.n2o_temperature,
                     'Q',1,'NitrousOxide'
                 )
                 n2o_state['rhol'] = PropsSI(
                     'D',
-                    'T',initial_conditions.n2o_temperature,
+                    'T',InitialConditions.n2o_temperature,
                     'Q',0,'NitrousOxide'
                 )
                 n2o_state['sv'] = PropsSI(
                     'S',
-                    'T',initial_conditions.n2o_temperature,
+                    'T',InitialConditions.n2o_temperature,
                     'Q',1,'NitrousOxide'
                 )
                 n2o_state['sl'] = PropsSI(
                     'S',
-                    'T',initial_conditions.n2o_temperature,
+                    'T',InitialConditions.n2o_temperature,
                     'Q',0,'NitrousOxide'
                 )
                 n2o_state['X'] = (
-                    n2o_state['rhov']*n2o_state['rhol']*tank_volume-n2o_state['rhov']*initial_conditions.n2o_mass
-                )/(initial_conditions.n2o_mass*(n2o_state['rhol']-n2o_state['rhov']))
-                total_entropy = initial_conditions.n2o_mass*(
+                    n2o_state['rhov']*n2o_state['rhol']*tank_volume-n2o_state['rhov']*InitialConditions.n2o_mass
+                )/(InitialConditions.n2o_mass*(n2o_state['rhol']-n2o_state['rhov']))
+                total_entropy = InitialConditions.n2o_mass*(
                     n2o_state['sl']*(1-n2o_state['X']) + n2o_state['sv']*n2o_state['X']
                 )
             return n2o_state'''
@@ -237,15 +237,15 @@ class ODE_System:
         ])
 
     def Solution_Loop(
-        initial_conditions,engine,combustion,
+        InitialConditions,engine,combustion,
         timestep,residual_mass=300e-3
     ):
         n2o_state,total_entropy = NitrousOxide.UpdateProperties(True,engine.tank_volume,initial_conditions)
-        n2o_mass = initial_conditions.n2o_mass
+        n2o_mass = InitialConditions.n2o_mass
         injector_evac_mass = 0.
         vent_evac_mass = 0.
-        chamber_pressure = initial_conditions.atmospheric_pressure
-        grain_inner_radius = initial_conditions.grain_inner_radius
+        chamber_pressure = InitialConditions.atmospheric_pressure
+        grain_inner_radius = InitialConditions.grain_inner_radius
         saturation = True
         t = 0
         step_solution = [injector_evac_mass,vent_evac_mass,chamber_pressure,grain_inner_radius]
@@ -254,7 +254,7 @@ class ODE_System:
                 ODE_System.StateEquations,
                 [t,t+timestep],
                 step_solution,
-                args=(n2o_state,engine,combustion,initial_conditions.atmospheric_pressure),
+                args=(n2o_state,engine,combustion,InitialConditions.atmospheric_pressure),
                 first_step=timestep,max_step=timestep
             )
             n2o_mass -= (injector_evac_mass + vent_evac_mass)
